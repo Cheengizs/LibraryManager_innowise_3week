@@ -40,13 +40,14 @@ public class BookRepository : IBookRepository
 
     public async Task CreateBookAsync(Book book)
     {
+        book.Id = _context.Books.Max(b => b.Id) + 1;
         _context.Books.Add(book);
     }
 
     public async Task UpdateBookAsync(Book book)
     {
-        var obj = _context.Books.FirstOrDefault(b => b.Id == book.Id);
-        obj = book;
+        int index = _context.Books.FindIndex(b => b.Id == book.Id);
+        _context.Books[index] = book;
     }
 
     public async Task DeleteBookAsync(int id)

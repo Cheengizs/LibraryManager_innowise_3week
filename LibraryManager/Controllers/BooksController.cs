@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LibraryManager.DtoModels;
 using LibraryManager.Models;
 using LibraryManager.Repositories.BookRepository;
 using LibraryManager.Validators;
@@ -21,12 +22,12 @@ public class BooksController : ControllerBase
         _bookValidator = new BookValidator();
     }
 
-    [HttpGet]
+    [HttpGet("author/{authorId}")]
     public async Task<IActionResult> GetAllAuthorsBooksAsync(int authorId)
     {
         try
         {
-            if (await _repository.CheckAuthorExistsAsync(authorId))
+            if (!(await _repository.CheckAuthorExistsAsync(authorId)))
                 return NotFound("Author not found");
 
             var list = await _repository.GetBooksByAuthorIdAsync(authorId);
@@ -73,15 +74,25 @@ public class BooksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateBookAsync(Book book)
+    public async Task<IActionResult> CreateBookAsync(BookRequestDto bookDto)
     {
         try
         {
+            Book book = new Book()
+            {
+                // id is temporary
+                Id = 1,
+                Title = bookDto.Title,
+                AuthorId = bookDto.AuthorId,
+                PublishedYear = bookDto.PublishedYear,
+            };
+            
             if (!(await _bookValidator.ValidateAsync(book)).IsValid)
                 return BadRequest("Invalid book");
-            var temp = await _repository.GetBookByIdAsync(book.Id);
-            if (temp != null)
-                return Conflict("Book already exists");
+            
+            // var temp = await _repository.GetBookByIdAsync(book.Id);
+            // if (temp != null)
+            //     return Conflict("Book already exists");
 
             await _repository.CreateBookAsync(book);
             return Created($"/api/v1/books/{book.Id}", book);

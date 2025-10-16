@@ -1,4 +1,5 @@
-﻿using LibraryManager.Models;
+﻿using LibraryManager.DtoModels;
+using LibraryManager.Models;
 using LibraryManager.Repositories.AuthorRepository;
 using LibraryManager.Validators;
 using Microsoft.AspNetCore.Mvc;
@@ -51,16 +52,24 @@ public class AuthorsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAuthorAsync(Author author)
+    public async Task<IActionResult> CreateAuthorAsync(AuthorRequestDto authorDto)
     {
         try
         {
+            Author author = new Author()
+            {
+                // id is temporary
+                Id = 1,
+                Name = authorDto.Name,
+                DateOfBirth = authorDto.DateOfBirth,
+            };
+            
             if (!(await _authorValidator.ValidateAsync(author)).IsValid)
                 return BadRequest();
             
-            var tempAuthor = await _repository.GetAuthorByIdAsync(author.Id);
-            if (tempAuthor != null)
-                return Conflict("This Author already exist");
+            // var tempAuthor = await _repository.GetAuthorByIdAsync(author.Id);
+            // if (tempAuthor != null)
+            //     return Conflict("This Author already exist");
 
             await _repository.CreateAuthorAsync(author);
             return Created($"/api/v1/authors/{author.Id}", author);

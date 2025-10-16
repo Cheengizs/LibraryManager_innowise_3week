@@ -24,13 +24,14 @@ public class AuthorRepository : IAuthorRepository
 
     public async Task CreateAuthorAsync(Author author)
     {
+        author.Id = _context.Authors.Max(a => a.Id) + 1;
         _context.Authors.Add(author);
     }
 
     public async Task UpdateAuthorAsync(Author author)
     {
-        var obj = _context.Authors.First(a => a.Id == author.Id);
-        obj = author;
+        var index = _context.Authors.FindIndex(a => a.Id == author.Id);
+        _context.Authors[index] = author;
     }
 
     public async Task DeleteAuthorAsync(int id)
