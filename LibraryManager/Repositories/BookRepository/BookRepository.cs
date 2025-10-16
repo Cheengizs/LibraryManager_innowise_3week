@@ -13,7 +13,16 @@ public class BookRepository : IBookRepository
     {
         _context = libraryDbContext;
     }
-    
+
+    public async Task<bool> CheckAuthorExistsAsync(int authorId)
+    {
+        var obj = _context.Authors.FirstOrDefault(a => a.Id == authorId);
+        if (obj == null)
+            return false;
+        
+        return true;
+    }
+
     public async Task<List<Book>> GetAllBooksAsync()
     {
         return _context.Books;
@@ -22,6 +31,11 @@ public class BookRepository : IBookRepository
     public async Task<Book?> GetBookByIdAsync(int id)
     {
         return _context.Books.FirstOrDefault(b => b.Id == id);
+    }
+
+    public async Task<List<Book>> GetBooksByAuthorIdAsync(int authorId)
+    {
+        return _context.Books.Where(b => b.AuthorId == authorId).ToList();
     }
 
     public async Task CreateBookAsync(Book book)

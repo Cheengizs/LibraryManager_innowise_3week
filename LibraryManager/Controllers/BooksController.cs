@@ -22,6 +22,24 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
+    public async Task<IActionResult> GetAllAuthorsBooksAsync(int authorId)
+    {
+        try
+        {
+            if (await _repository.CheckAuthorExistsAsync(authorId))
+                return NotFound("Author not found");
+
+            var list = await _repository.GetBooksByAuthorIdAsync(authorId);
+            return Ok(list);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    [HttpGet]
     public async Task<IActionResult> GetAllBooksAsync()
     {
         try
@@ -42,9 +60,9 @@ public class BooksController : ControllerBase
         try
         {
             var obj = await _repository.GetBookByIdAsync(id);
-            if(obj == null)
+            if (obj == null)
                 return NotFound();
-            
+
             return Ok(obj);
         }
         catch (Exception e)
@@ -62,9 +80,9 @@ public class BooksController : ControllerBase
             if (!(await _bookValidator.ValidateAsync(book)).IsValid)
                 return BadRequest("Invalid book");
             var temp = await _repository.GetBookByIdAsync(book.Id);
-            if(temp != null)
+            if (temp != null)
                 return Conflict("Book already exists");
-            
+
             await _repository.CreateBookAsync(book);
             return Created($"/api/v1/books/{book.Id}", book);
         }
@@ -82,11 +100,11 @@ public class BooksController : ControllerBase
         {
             if (!(await _bookValidator.ValidateAsync(book)).IsValid)
                 return BadRequest("Invalid book");
-            
+
             var temp = await _repository.GetBookByIdAsync(book.Id);
-            if(temp == null)
+            if (temp == null)
                 return NotFound("Book not found");
-            
+
             await _repository.UpdateBookAsync(book);
             return Ok();
         }
@@ -103,9 +121,9 @@ public class BooksController : ControllerBase
         try
         {
             var book = await _repository.GetBookByIdAsync(id);
-            if(book == null)
+            if (book == null)
                 return NotFound("Book not found");
-            
+
             await _repository.DeleteBookAsync(id);
             return NoContent();
         }

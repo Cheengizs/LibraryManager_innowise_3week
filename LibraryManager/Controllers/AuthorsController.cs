@@ -17,7 +17,7 @@ public class AuthorsController : ControllerBase
         _repository = repository;
         _authorValidator = new AuthorValidator();
     }
-
+    
     [HttpGet]
     public async Task<IActionResult> GetAllAuthorsAsync(int id)
     {
